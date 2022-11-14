@@ -6,7 +6,7 @@ import random
 if __name__ == "__main__":
     # odczyt z pliku
 
-    filepath = r"zadanie_1.txt"
+    filepath = r"testy_1.txt"
     f = open(filepath,"r")
     ilosc = int(f.readline())
     punkty = []
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     odwiedzone = []
     rozwiazanie = []
     print(len(punkty),ilosc)
-    pierwszy = 0
+    pierwszy = random.randint(0,ilosc)
     odwiedzone.append(pierwszy)
     il = ilosc
     o = 0
@@ -42,14 +42,16 @@ if __name__ == "__main__":
                     l = i
         odwiedzone.append(l)
         odleglosci.append(x)
-
+    odwiedzone.append(pierwszy)
+    odleglosci.append(sqrt(((punkty[odwiedzone[-1]][0]-punkty[odwiedzone[-2]][0])**2)+((punkty[odwiedzone[-1]][1]-punkty[odwiedzone[-2]][1])**2)))
     print(odwiedzone)
     print(odleglosci)
-    """"
-    sprawdzanie odleglosci od danego punktu wszystkich innych punktów
-    odleglosci_od_3 = []
+
+    #sprawdzanie odleglosci od danego punktu wszystkich innych punktów
+    odleglosci_od_pierwszego = []
     for i in range(ilosc):
-        k = sqrt(((punkty[3][0]-punkty[i][0])**2)+((punkty[3][1]-punkty[i][1])**2))
-        odleglosci_od_3.append(k)
-    print(odleglosci_od_3)
-    """
+        k = sqrt(((punkty[pierwszy][0]-punkty[i][0])**2)+((punkty[pierwszy][1]-punkty[i][1])**2))
+        odleglosci_od_pierwszego.append(k)
+    print(odleglosci_od_pierwszego)
+
+
