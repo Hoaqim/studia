@@ -7,7 +7,7 @@ import os
 import time
 #print(os.getcwd())
 # odczyt z pliku
-filepath = r"tsp250.txt"
+filepath = r"piwo.txt"
 f = open(filepath, "r")
 
 ilosc = int(f.readline())
@@ -46,8 +46,6 @@ def algorytm_zachłanny(pierwszy,ilosc):
                     l = i
         odwiedzone.append(l)
         odleglosci.append(x)
-    odwiedzone.append(pierwszy)
-    odleglosci.append(sqrt(((punkty[odwiedzone[-1]][0]-punkty[odwiedzone[-2]][0])**2)+((punkty[odwiedzone[-1]][1]-punkty[odwiedzone[-2]][1])**2)))
     return odwiedzone
 #stworzenie pierwotnej populacji
 #z pomocą algorytmu zachłannego
@@ -67,6 +65,7 @@ def fitness(hromosom,punkty):
         k = hromosom[i-1]
         l = hromosom[i]
         total = total + sqrt(((punkty[k][0]-punkty[l][0])**2)+((punkty[k][1]-punkty[l][1])**2))
+    total = total + sqrt(((punkty[hromosom[-1]][0]-punkty[hromosom[0]][0])**2)+((punkty[hromosom[-1]][1]-punkty[hromosom[0]][1])**2))
     return total
 def ranking_odleglosci(populacja,punkty):
     wyniki_fitnesu = {}
@@ -75,8 +74,11 @@ def ranking_odleglosci(populacja,punkty):
     return sorted(wyniki_fitnesu.items(), key = operator.itemgetter(1), reverse= False)
 
 rank_odl = ranking_odleglosci(populacja,punkty)
-print(rank_odl)
-
+#print(rank_odl)
+#print(len(rank_odl))
+#print(rank_odl[0][1])
+#print(rank_odl[[1][0]])
+#print(rank_odl[2][0])
 #turniej wybiernaie osobników do rozrodu
 def wybranie(rank_odl, ilu_wybieramy):
     wybrane_wyniki = []
@@ -99,46 +101,31 @@ populacja_do_rozrodu = gody(populacja,wyb)
 #print(populacja_do_rozrodu)
 
 #tworzenie dzieciaczków
-def crossover(a,b):
+def crossover(a,b,ilosc):
     child = []
     childA = []
     childB = []
-
-    geneA = int(random.randint(1,len(a)-1))
-    geneB = int(random.randint(1,len(a)-1))
-
-    start_gene = min(geneA, geneB)
-    end_gene = max(geneA, geneB)
-
-    for i in range(start_gene, end_gene):
+    z = int(ilosc/2)
+    for i in range(0,z):
         childA.append(a[i])
-
-    childB = [item for item in a if item not in childA]
+    childB = [item for item in b if item not in childA]
     child = childA + childB
-    if len(child) == len(a):
-        child.pop()
-        child.append(child[0])
-    else:
-        child.append(child[0])
-
     return child
 
-def rozrody(populacja_do_rozrodu):
+def rozrody(populacja_do_rozrodu,ilosc):
     dzieciaki = []
-    for i in range(1,len(populacja_do_rozrodu)):
-        x = crossover(populacja_do_rozrodu[i-1],populacja_do_rozrodu[i])
+    for i in range(0,len(populacja_do_rozrodu)):
+        x = crossover(populacja_do_rozrodu[i-1],populacja_do_rozrodu[i],ilosc)
         dzieciaki.append(x)
-
-
     return dzieciaki
-r = rozrody(populacja_do_rozrodu)
+#r = rozrody(populacja_do_rozrodu)
 #print(r)
 
 def mutacja(droga,szansa_na_mutacje):
-    route = np.array(droga)
+    route = droga
     for zamiana in range(1,len(route)-1):
         if (random.random() < szansa_na_mutacje):
-            zamienione_z = np.random.randint(1,len(route)-1)
+            zamienione_z = random.randint(1,len(route)-1)
             wsp1 = route[zamiana]
             wsp2 = route[zamienione_z]
             route[zamienione_z] = wsp1
@@ -150,15 +137,15 @@ def mutacja_na_populacji(dzieci,szansa_na_mutacje):
         zmutowane_dziecko = mutacja(i,szansa_na_mutacje)
         next_gen.append(zmutowane_dziecko)
     return next_gen
-
-def nowa_generacja(punkty,obecna_populacja,szansa_na_zmutowanie,ilu_wybieramy):
+#print(mutacja_na_populacji(r,0.5))
+def nowa_generacja(punkty,obecna_populacja,szansa_na_zmutowanie,ilu_wybieramy,ilosc):
     ranking = ranking_odleglosci(obecna_populacja,punkty)
 
     wybrancy = wybranie(ranking,ilu_wybieramy)
 
     go_dy = gody(obecna_populacja,wybrancy)
 
-    dzieci = rozrody(go_dy)
+    dzieci = rozrody(go_dy,ilosc)
 
     nowicjusze = mutacja_na_populacji(dzieci,szansa_na_zmutowanie)
 
@@ -168,17 +155,22 @@ def algo_genteyczne(punkty,ilosc,ilosc_generacji,szansa_na_mutacje,ilu_wybieramy
     postepy = []
 
 
-    populacja = pierwsza_populacja(rozmiar_populacji,ilosc)
-    postepy.append(ranking_odleglosci(populacja,punkty)[0][1])
+    populacja = pierwsza_populacja(rozmiar_populacji, ilosc)
+    r = ranking_odleglosci(populacja,punkty)[0]
+    postepy.append(r[1])
     print(f"początkowy dystans {postepy[0]}")
-    print(f"począktowa droga {populacja[0]}")
-    timeout = time.time() + 60 * 5
+    print(f"począktowa droga {populacja[r[0]]}")
+    timeout = time.time() + 60 * 9
     for i in range(0,ilosc_generacji):
-        popul = nowa_generacja(punkty, populacja, szansa_na_mutacje, ilu_wybieramy)
-        rank_ = ranking_odleglosci(popul, punkty)[0]
-        if rank_[1] < postepy[-1]:
+        popul = nowa_generacja(punkty, populacja, szansa_na_mutacje, ilu_wybieramy,ilosc)
+        rank_ = ranking_odleglosci(popul, punkty)
+
+        populacja = popul + populacja[len(popul):]
+        print(len(populacja))
+        if rank_[0][1] < postepy[-1]:
             postepy.append(ranking_odleglosci(popul, punkty)[0][1])
-            rozwiazanie = popul[rank_[0]]
+            rozwiazanie = popul[rank_[0][0]]
+
         if time.time() > timeout:
             break
     print(f"njalepszy wynik {postepy[-1]}")
@@ -189,5 +181,5 @@ def algo_genteyczne(punkty,ilosc,ilosc_generacji,szansa_na_mutacje,ilu_wybieramy
 
 
 if __name__ == "__main__":
-
-    algo_genteyczne(punkty,ilosc,1000,0.01,50,500)
+    #punkty to współrzędne ilosc to ilosc punktów
+    algo_genteyczne(punkty,ilosc,500,0.01,100,1000)
