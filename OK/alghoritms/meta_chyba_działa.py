@@ -7,7 +7,7 @@ import os
 import time
 #print(os.getcwd())
 # odczyt z pliku
-filepath = r"piwo.txt"
+filepath = r"Berlin.txt"
 f = open(filepath, "r")
 
 ilosc = int(f.readline())
@@ -25,6 +25,18 @@ miasta = []
 for i in range(ilosc):
     miasta.append(i)
 #print(miasta)
+
+def wybieranie_losowe(ilosc,wielkosc):
+    populacja = []
+    lista = []
+    for i in range(ilosc):
+        lista.append(i)
+    print(lista)
+    for i in range(0,wielkosc):
+        droga = random.shuffle(lista)
+        populacja.append(droga)
+    return populacja
+print(wybieranie_losowe(ilosc,5))
 
 def algorytm_zachłanny(pierwszy,ilosc):
     odwiedzone = []
@@ -105,7 +117,7 @@ def crossover(a,b,ilosc):
     child = []
     childA = []
     childB = []
-    z = int(ilosc/2)
+    z = random.randint(1,ilosc-1)
     for i in range(0,z):
         childA.append(a[i])
     childB = [item for item in b if item not in childA]
@@ -125,7 +137,7 @@ def mutacja(droga,szansa_na_mutacje):
     route = droga
     for zamiana in range(1,len(route)-1):
         if (random.random() < szansa_na_mutacje):
-            zamienione_z = random.randint(1,len(route)-1)
+            zamienione_z = random.randint(0,len(route)-1)
             wsp1 = route[zamiana]
             wsp2 = route[zamienione_z]
             route[zamienione_z] = wsp1
@@ -182,4 +194,4 @@ def algo_genteyczne(punkty,ilosc,ilosc_generacji,szansa_na_mutacje,ilu_wybieramy
 
 if __name__ == "__main__":
     #punkty to współrzędne ilosc to ilosc punktów
-    algo_genteyczne(punkty,ilosc,500,0.01,100,1000)
+    algo_genteyczne(punkty,ilosc,9000,0.01,1400,1700)
